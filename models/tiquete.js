@@ -1,26 +1,50 @@
-import { Schema, model } from 'mongoose';
+import { Schema } from 'mongoose';
+import mongoose from 'mongoose';
+import mongooseSequence from 'mongoose-sequence';
 
-// los datos son: documento pasajero, nombre pasajero,placaVehiculo,origen y destino
+const AutoIncrement = mongooseSequence(mongoose);
+
+// Los datos son: documento pasajero, nombre pasajero, placaVehiculo, origen y destino
 const tiqueteSchema = new Schema({
+    // Número de tiquete autoincrementable
+    numeroTiquete: { 
+        type: Number,
+        unique: true
+    },
+    valor: {
+        type: Number,
+        required: true
+    },
+    impuesto: {
+        type: Number,
+        required: true,
+        default: function() {
+            return this.valor * 0.16;
+        }
+    },
     documentoPasajero: { 
         type: String, 
-        required: true },
-        nombrePasajero: {
+        required: true 
+    },
+    nombrePasajero: {
         type: String,
         required: true
-        },
-        placaVehiculo: {
+    },
+    placaVehiculo: {
         type: String,
         required: true
-        },
-        origen: {
+    },
+    origen: {
         type: String,
         required: true
-        },
-        destino:{
+    },
+    destino: {
         type: String,
         required: true
-        }
-})
+    }
+});
 
-export default model('Tiquete',tiqueteSchema, 'tiquete')
+// Plugin para autoincrementar el número de tiquete
+tiqueteSchema.plugin(AutoIncrement, { inc_field: 'numeroTiquete' });
+const Tiquete = mongoose.model('Tiquete', tiqueteSchema, 'tiquete');
+export default Tiquete
